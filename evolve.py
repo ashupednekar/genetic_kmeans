@@ -2,26 +2,42 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import random
+from sklearn import datasets
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+iris = datasets.load_iris()
+X = iris.data
 
 class Individual(object):
 
     def __init__(self, numbers=None, mutate_prob=0.01):
         if numbers is None:
-            self.numbers = np.random.randint(101, size=10)
+            self.numbers = np.random.uniform(0.0, 10.0, size=16)
         else:
             self.numbers = numbers
             # Mutate
             if mutate_prob > np.random.rand():
                 mutate_index = np.random.randint(len(self.numbers) - 1)
-                self.numbers[mutate_index] = np.random.randint(101)
+                self.numbers[mutate_index] = np.random.uniform(0.0,10.0)
 
     def fitness(self):
         """
             Returns fitness of individual
             Fitness is the difference between
         """
-        target_sum = 900
-        return abs(target_sum - np.sum(self.numbers))
+        numbers = self.numbers
+        array = np.array(np.split(np.array(numbers),4))
+        # print(array)
+        model = KMeans(n_clusters=4, init=array, n_init=1)
+        ycap = model.fit_predict(X)
+        yactual = iris.target
+        score = (1 / silhouette_score(yactual, ycap)) * 100
+        print(score)
+
+        return score
+        # ycap = target_sum = 900
+        # return abs(target_sum - np.sum(self.numbers))
 
 class Population(object):
 
@@ -126,7 +142,7 @@ if __name__ == "__main__":
     # Plot fitness history
     if SHOW_PLOT:
         print("Showing fitness history graph")
-        matplotlib.use("MacOSX")
+        # matplotlib.use("Ubuntu")
         plt.plot(np.arange(len(pop.fitness_history)), pop.fitness_history)
         plt.ylabel('Fitness')
         plt.xlabel('Generations')

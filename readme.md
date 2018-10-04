@@ -1,0 +1,1 @@
+This was an attempt to optimise the initial centroids of K-means using genetic algorithm.
